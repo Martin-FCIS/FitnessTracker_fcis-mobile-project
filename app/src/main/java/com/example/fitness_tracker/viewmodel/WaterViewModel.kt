@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitness_tracker.database.WaterEntity
 import com.example.fitness_tracker.database.WaterRepo
+import com.example.fitness_tracker.database.UserPreferences
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -11,7 +12,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class WaterViewModel(private val repository: WaterRepo) : ViewModel() {
+class WaterViewModel(private val repository: WaterRepo, private val userPrefs: UserPreferences) :
+    ViewModel() {
+    val dailyGoal: StateFlow<Int> = userPrefs.dailyGoal
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2000)
+
+    val isSetupDone: StateFlow<Boolean> = userPrefs.isSetupDone
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun saveUserWeight(weight: Int) {
+        viewModelScope.launch {
+            userPrefs.saveGoal(weight)
+        }
+    }
 
     private val startOfDay: Long
         get() {
@@ -44,5 +57,3 @@ class WaterViewModel(private val repository: WaterRepo) : ViewModel() {
         }
     }
 }
-
-
