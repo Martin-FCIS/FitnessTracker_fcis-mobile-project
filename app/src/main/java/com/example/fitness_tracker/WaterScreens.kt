@@ -1,5 +1,6 @@
 package com.example.fitness_tracker
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.example.fitness_tracker.database.WaterEntity
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun CongratulatoryDialog(onDismiss: () -> Unit) {
@@ -224,6 +226,7 @@ fun TrackerScreen(
     onDelete: (WaterEntity) -> Unit,
     onUpdateWeight: (Int) -> Unit
 ) {
+    val context = LocalContext.current
     var showEditDialog by remember { mutableStateOf(false) }
     val percentage = if (dailyGoal > 0) (currentIntake.toFloat() / dailyGoal.toFloat()).coerceIn(0f, 1f) else 0f
 
@@ -245,12 +248,37 @@ fun TrackerScreen(
                 fontWeight = FontWeight.Medium,
                 color = Color.Gray
             )
-            IconButton(onClick = { showEditDialog = true }) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // BMI Calculator Button
+                IconButton(
+                    onClick = {
+                        val intent =
+                            context.packageManager.getLaunchIntentForPackage("com.example.bmi_calculator")
+                        if (intent != null) {
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, "BMI Calculator app not installed", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Calculate,
+                        contentDescription = "BMI Calculator",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                IconButton(onClick = { showEditDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
 
