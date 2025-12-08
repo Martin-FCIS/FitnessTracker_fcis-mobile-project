@@ -9,5 +9,6 @@ data class WaterEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val amount: Int,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val userId:String
     )

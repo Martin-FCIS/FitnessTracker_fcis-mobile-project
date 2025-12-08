@@ -14,9 +14,9 @@ interface WaterDao {
     @Delete
     suspend fun deleteRecord(record: WaterEntity)
 
-    @Query("SELECT * FROM water_table ORDER BY timestamp DESC")
-    fun getAllRecords(): Flow<List<WaterEntity>>
+    @Query("SELECT * FROM water_table WHERE userId = :uid ORDER BY timestamp DESC")
+    fun getRecordsForUser(uid: String): Flow<List<WaterEntity>>
 
-    @Query("SELECT SUM(amount) FROM water_table WHERE timestamp >= :startOfDay")
-    fun getTodayTotal(startOfDay: Long):Flow<Int?>
+    @Query("SELECT SUM(amount) FROM water_table WHERE userId = :uid AND timestamp >= :startOfDay")
+    fun getTodayTotalForUser(uid: String, startOfDay: Long): Flow<Int?>
 }
