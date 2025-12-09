@@ -101,8 +101,8 @@ class MainActivity : ComponentActivity() {
                             else -> {}
                         }
                     }
-
-                    NavHost(navController = navController, startDestination = "login") {
+                    val startDestination = if (authRepo.getCurrentUserId() != null) "home" else "login"
+                    NavHost(navController = navController, startDestination = startDestination) {
 
                         // Auth Screens
                         composable("login") {
