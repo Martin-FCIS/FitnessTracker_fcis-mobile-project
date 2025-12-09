@@ -30,4 +30,11 @@ class FoodRepo(private val foodDao: FoodDao) {
     fun getTodayFats(uid: String, startOfDay: Long): Flow<Double?> {
         return foodDao.getTodayFats(uid, startOfDay)
     }
+    fun getAllFoods(uid: String): Flow<List<FoodEntity>> {
+       return foodDao.getAllFoods(uid);
+    }
+
+    fun getFoodsForDay(uid: String, start: Long, end: Long): Flow<List<FoodEntity>> {
+        return foodDao.getFoodsForDay(uid, start, end)
+    }
 }

@@ -5,7 +5,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 data class HistoryLog(
     val time: String,
     val title: String,
-    val description: String,
+    val subtitle: String,
+    val value: String,
     val icon: ImageVector,
     val type: LogType
 )

@@ -21,4 +21,7 @@ interface WalkDao {
 
     @Query("SELECT * FROM walk_table WHERE userId = :uid AND date = :dateString LIMIT 1")
     fun getWalkForDay(uid: String, dateString: String): Flow<WalkEntity?>
+
+    @Query("SELECT * FROM walk_table WHERE userId = :uid ORDER BY date DESC")
+    fun getAllWalks(uid: String): Flow<List<WalkEntity>>
 }

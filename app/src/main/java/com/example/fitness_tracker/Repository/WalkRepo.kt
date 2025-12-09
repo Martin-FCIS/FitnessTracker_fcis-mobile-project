@@ -9,6 +9,7 @@ class WalkRepo(private val walkDao: WalkDao) {
     suspend fun insertWalk(walk: WalkEntity) {
         walkDao.insertWalk(walk)
     }
+
     fun getTodaySteps(uid: String, date: String): Flow<Int?> {
         return walkDao.getTodayTotalSteps(uid, date)
     }
@@ -20,7 +21,13 @@ class WalkRepo(private val walkDao: WalkDao) {
     fun getTodayDistance(uid: String, date: String): Flow<Double?> {
         return walkDao.getTodayDistance(uid, date)
     }
+
     fun getWalkForDay(uid: String, date: String): Flow<WalkEntity?> {
         return walkDao.getWalkForDay(uid, date)
     }
+
+    fun getAllWalks(uid: String): Flow<List<WalkEntity>> {
+        return walkDao.getAllWalks(uid)
+    }
+
 }

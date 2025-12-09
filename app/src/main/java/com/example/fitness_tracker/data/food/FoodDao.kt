@@ -28,4 +28,10 @@ interface FoodDao {
 
     @Query("SELECT SUM(fats) FROM food_table WHERE userId = :uid AND timestamp >= :startOfDay")
     fun getTodayFats(uid: String, startOfDay: Long): Flow<Double?>
+
+    @Query("SELECT * FROM food_table WHERE userId = :uid ORDER BY timestamp DESC")
+    fun getAllFoods(uid: String): Flow<List<FoodEntity>>
+
+    @Query("SELECT * FROM food_table WHERE userId = :uid AND timestamp BETWEEN :start AND :end ORDER BY timestamp DESC")
+    fun getFoodsForDay(uid: String, start: Long, end: Long): Flow<List<FoodEntity>>
 }
