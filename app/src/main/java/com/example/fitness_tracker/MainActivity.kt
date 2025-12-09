@@ -1,4 +1,5 @@
 package com.example.fitness_tracker
+
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -21,6 +22,7 @@ import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModelFactory
 import com.example.fitness_tracker.data.AppDatabase
 import com.example.fitness_tracker.Repository.AuthRepo
 import com.example.fitness_tracker.Repository.FoodRepo
+import com.example.fitness_tracker.Repository.WalkRepo
 import com.example.fitness_tracker.data.UserPreferences
 import com.example.fitness_tracker.Repository.WaterRepo
 import com.example.fitness_tracker.ui.auth.LoginScreen
@@ -28,10 +30,13 @@ import com.example.fitness_tracker.ui.auth.RegisterScreen
 import com.example.fitness_tracker.ui.food.FoodScreen
 import com.example.fitness_tracker.ui.home.HomeScreen
 import com.example.fitness_tracker.ui.profile.ProfileScreen
+import com.example.fitness_tracker.ui.walk.WalkScreen
 import com.example.fitness_tracker.ui.theme.Fitness_TrackerTheme
 import com.example.fitness_tracker.ui.water.WaterScreen
 import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModel
 import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModelFactory
+import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModel
+import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModelFactory
 import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModel
 import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModelFactory
 import com.google.firebase.FirebaseApp
@@ -48,12 +53,14 @@ class MainActivity : ComponentActivity() {
         val authRepo = AuthRepo()
         val waterRepo = WaterRepo(database.waterDao())
         val foodRepo = FoodRepo(database.foodDao())
+        val walkRepo = WalkRepo(database.walkDao())
         val userPreferences = UserPreferences(applicationContext)
 
         // Setup ViewModels Factories
         val authFactory = AuthViewModelFactory(authRepo, userPreferences)
         val waterFactory = WaterViewModelFactory(waterRepo, authRepo, userPreferences)
         val foodFactory = FoodViewModelFactory(foodRepo, authRepo, userPreferences)
+        val walkFactory = WalkViewModelFactory(walkRepo, authRepo)
 
         setContent {
             Fitness_TrackerTheme {
@@ -67,6 +74,7 @@ class MainActivity : ComponentActivity() {
                     val authViewModel: AuthViewModel = viewModel(factory = authFactory)
                     val waterViewModel: WaterViewModel = viewModel(factory = waterFactory)
                     val foodViewModel: FoodViewModel = viewModel(factory = foodFactory)
+                    val walkViewModel: WalkViewModel = viewModel(factory = walkFactory)
 
                     val authState by authViewModel.authState.collectAsState()
 
@@ -102,6 +110,8 @@ class MainActivity : ComponentActivity() {
                     }
                     val startDestination = if (authRepo.getCurrentUserId() != null) "home" else "login"
                     NavHost(navController = navController, startDestination = startDestination) {
+
+                        // Auth Screens
                         composable("login") {
                             if (authState is AuthState.Loading) {
                                 Box(
@@ -143,16 +153,22 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+
+                        // Home Screen
                         composable("home") {
                             HomeScreen(
                                 authViewModel = authViewModel,
                                 waterViewModel = waterViewModel,
                                 foodViewModel = foodViewModel,
+                                walkViewModel = walkViewModel,
                                 onNavigateToWater = {
                                     navController.navigate("water")
                                 },
                                 onNavigateToFood = {
                                     navController.navigate("food")
+                                },
+                                onNavigateToWalk = {
+                                    navController.navigate("walk")
                                 },
                                 onNavigateToProfile = {
                                     navController.navigate("profile")
@@ -180,6 +196,16 @@ class MainActivity : ComponentActivity() {
                         composable("food") {
                             FoodScreen(
                                 foodViewModel = foodViewModel,
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        // Walk Screen
+                        composable("walk") {
+                            WalkScreen(
+                                walkViewModel = walkViewModel,
                                 onNavigateBack = {
                                     navController.popBackStack()
                                 }
