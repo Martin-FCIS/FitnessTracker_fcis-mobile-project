@@ -18,4 +18,7 @@ interface WalkDao {
 
     @Query("SELECT SUM(distance) FROM walk_table WHERE userId = :uid AND date = :todayDate")
     fun getTodayDistance(uid: String, todayDate: String): Flow<Double?>
+
+    @Query("SELECT * FROM walk_table WHERE userId = :uid AND date = :dateString LIMIT 1")
+    fun getWalkForDay(uid: String, dateString: String): Flow<WalkEntity?>
 }

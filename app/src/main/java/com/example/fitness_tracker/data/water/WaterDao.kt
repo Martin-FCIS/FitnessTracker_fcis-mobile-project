@@ -19,4 +19,7 @@ interface WaterDao {
 
     @Query("SELECT SUM(amount) FROM water_table WHERE userId = :uid AND timestamp >= :startOfDay")
     fun getTodayTotalForUser(uid: String, startOfDay: Long): Flow<Int?>
+
+    @Query("SELECT * FROM water_table WHERE userId = :uid AND timestamp BETWEEN :start AND :end ORDER BY timestamp DESC")
+    fun getWaterForDay(uid: String, start: Long, end: Long): Flow<List<WaterEntity>>
 }

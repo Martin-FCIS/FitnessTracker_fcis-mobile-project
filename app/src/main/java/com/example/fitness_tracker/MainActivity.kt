@@ -1,23 +1,16 @@
 package com.example.fitness_tracker
-
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,24 +20,41 @@ import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModel
 import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModelFactory
 import com.example.fitness_tracker.data.AppDatabase
 import com.example.fitness_tracker.Repository.AuthRepo
+import com.example.fitness_tracker.Repository.FoodRepo
 import com.example.fitness_tracker.data.UserPreferences
 import com.example.fitness_tracker.Repository.WaterRepo
 import com.example.fitness_tracker.ui.auth.LoginScreen
 import com.example.fitness_tracker.ui.auth.RegisterScreen
+import com.example.fitness_tracker.ui.food.FoodScreen
+import com.example.fitness_tracker.ui.home.HomeScreen
+import com.example.fitness_tracker.ui.profile.ProfileScreen
 import com.example.fitness_tracker.ui.theme.Fitness_TrackerTheme
+import com.example.fitness_tracker.ui.water.WaterScreen
+import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModel
+import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModelFactory
+import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModel
 import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModelFactory
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this)
+
+        // Setup Database and Repositories
         val database = AppDatabase.getInstance(applicationContext)
         val authRepo = AuthRepo()
         val waterRepo = WaterRepo(database.waterDao())
+        val foodRepo = FoodRepo(database.foodDao())
         val userPreferences = UserPreferences(applicationContext)
+
+        // Setup ViewModels Factories
         val authFactory = AuthViewModelFactory(authRepo, userPreferences)
         val waterFactory = WaterViewModelFactory(waterRepo, authRepo, userPreferences)
-        FirebaseApp.initializeApp(this)
+        val foodFactory = FoodViewModelFactory(foodRepo, authRepo, userPreferences)
+
         setContent {
             Fitness_TrackerTheme {
                 Surface(
@@ -52,7 +62,11 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+
+                    // ViewModels
                     val authViewModel: AuthViewModel = viewModel(factory = authFactory)
+                    val waterViewModel: WaterViewModel = viewModel(factory = waterFactory)
+                    val foodViewModel: FoodViewModel = viewModel(factory = foodFactory)
 
                     val authState by authViewModel.authState.collectAsState()
 
@@ -61,12 +75,16 @@ class MainActivity : ComponentActivity() {
                             is AuthState.Success -> {
                                 Toast.makeText(
                                     applicationContext,
-                                    "Login Successfully",
+                                    "Success!",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                navController.navigate("home") {
-                                    popUpTo("login") { inclusive = true }
-                                    popUpTo("register") { inclusive = true }
+
+                                // Navigate to home only if not already there
+                                if (navController.currentDestination?.route != "home") {
+                                    navController.navigate("home") {
+                                        popUpTo("login") { inclusive = true }
+                                        popUpTo("register") { inclusive = true }
+                                    }
                                 }
                             }
 
@@ -74,10 +92,9 @@ class MainActivity : ComponentActivity() {
                                 val errorMsg = (authState as AuthState.Error).message
                                 Toast.makeText(
                                     applicationContext,
-                                    "error: $errorMsg",
+                                    "Error: $errorMsg",
                                     Toast.LENGTH_LONG
                                 ).show()
-                                print(errorMsg)
                             }
 
                             else -> {}
@@ -85,8 +102,6 @@ class MainActivity : ComponentActivity() {
                     }
                     val startDestination = if (authRepo.getCurrentUserId() != null) "home" else "login"
                     NavHost(navController = navController, startDestination = startDestination) {
-
-
                         composable("login") {
                             if (authState is AuthState.Loading) {
                                 Box(
@@ -106,6 +121,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+
                         composable("register") {
                             if (authState is AuthState.Loading) {
                                 Box(
@@ -118,13 +134,7 @@ class MainActivity : ComponentActivity() {
                                 RegisterScreen(
                                     onRegisterClick = { name, email, pass, age, gender, height, weight ->
                                         authViewModel.signUp(
-                                            name,
-                                            email,
-                                            pass,
-                                            age,
-                                            gender,
-                                            height,
-                                            weight
+                                            name, email, pass, age, gender, height, weight
                                         )
                                     },
                                     onNavigateToLogin = {
@@ -133,9 +143,56 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
-
                         composable("home") {
                             HomeScreen(
+                                authViewModel = authViewModel,
+                                waterViewModel = waterViewModel,
+                                foodViewModel = foodViewModel,
+                                onNavigateToWater = {
+                                    navController.navigate("water")
+                                },
+                                onNavigateToFood = {
+                                    navController.navigate("food")
+                                },
+                                onNavigateToProfile = {
+                                    navController.navigate("profile")
+                                },
+                                onLogout = {
+                                    authViewModel.logout()
+                                    navController.navigate("login") {
+                                        popUpTo("home") { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
+                        // Water Screen
+                        composable("water") {
+                            WaterScreen(
+                                waterViewModel = waterViewModel,
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        // Food Screen
+                        composable("food") {
+                            FoodScreen(
+                                foodViewModel = foodViewModel,
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        // Profile Screen
+                        composable("profile") {
+                            ProfileScreen(
+                                authViewModel = authViewModel,
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                },
                                 onLogout = {
                                     authViewModel.logout()
                                     navController.navigate("login") {
@@ -146,25 +203,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun HomeScreen(onLogout: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Welcome in Fitness Tracker! \uD83D\uDCA7",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onLogout) {
-                Text("Logout")
             }
         }
     }

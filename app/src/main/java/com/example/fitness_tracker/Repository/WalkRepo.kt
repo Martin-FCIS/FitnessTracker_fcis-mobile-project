@@ -20,4 +20,7 @@ class WalkRepo(private val walkDao: WalkDao) {
     fun getTodayDistance(uid: String, date: String): Flow<Double?> {
         return walkDao.getTodayDistance(uid, date)
     }
+    fun getWalkForDay(uid: String, date: String): Flow<WalkEntity?> {
+        return walkDao.getWalkForDay(uid, date)
+    }
 }

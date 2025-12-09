@@ -18,5 +18,8 @@ class WaterRepo(private val waterDao: WaterDao) {
     fun getTodayTotalForUser(uid: String, startOfDay: Long): Flow<Int?> {
         return waterDao.getTodayTotalForUser(uid, startOfDay)
     }
+    fun getWaterForDay(uid: String, start: Long, end: Long): Flow<List<WaterEntity>> {
+        return waterDao.getWaterForDay(uid, start,end)
+    }
 
 }
