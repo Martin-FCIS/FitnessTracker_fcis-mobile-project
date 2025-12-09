@@ -1,4 +1,5 @@
 package com.example.fitness_tracker.ui.auth
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -80,14 +81,15 @@ fun LoginScreen(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text("Login", fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Don't have an account? ")
                 TextButton(onClick = onNavigateToRegister) {
