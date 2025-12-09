@@ -16,5 +16,4 @@ data class FoodEntity(
     val fats: Double,
     val totalCalories: Int,
     val timestamp: Long = System.currentTimeMillis()
-) {
-}
+)
