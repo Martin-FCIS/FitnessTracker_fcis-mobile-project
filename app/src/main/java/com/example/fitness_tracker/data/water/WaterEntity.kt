@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.data
+package com.example.fitness_tracker.data.water
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
 data class WaterEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val userId:String,
     val amount: Int,
-    val timestamp: Long = System.currentTimeMillis(),
-    val userId:String
+    val timestamp: Long = System.currentTimeMillis()
+
     )

@@ -1,5 +1,4 @@
 package com.example.fitness_tracker
-
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity

@@ -3,7 +3,7 @@ package com.example.fitness_tracker.viewmodel.water_viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitness_tracker.Repository.AuthRepo
-import com.example.fitness_tracker.data.WaterEntity
+import com.example.fitness_tracker.data.water.WaterEntity
 import com.example.fitness_tracker.Repository.WaterRepo
 import com.example.fitness_tracker.data.UserPreferences
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,21 +13,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class WaterViewModel(private val waterRepo: WaterRepo, private val authRepository: AuthRepo, private val userPrefs: UserPreferences) :
+class WaterViewModel(private val waterRepo: WaterRepo, private val authRepo: AuthRepo, private val userPrefs: UserPreferences) :
     ViewModel() {
-    val dailyGoal: StateFlow<Int> = userPrefs.dailyGoal
+    val dailyWaterGoal: StateFlow<Int> = userPrefs.dailyWaterGoal
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2000)
 
-    val isSetupDone: StateFlow<Boolean> = userPrefs.isSetupDone
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
-    fun saveUserWeight(weight: Int) {
-        viewModelScope.launch {
-            userPrefs.saveGoal(weight)
-        }
-    }
     private val currentUserId: String
-        get() = authRepository.getCurrentUserId() ?: ""
+        get() = authRepo.getCurrentUserId() ?: ""
 
 
     private val startOfDay: Long

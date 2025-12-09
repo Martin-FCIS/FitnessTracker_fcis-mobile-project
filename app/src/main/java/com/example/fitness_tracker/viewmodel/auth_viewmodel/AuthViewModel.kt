@@ -22,9 +22,22 @@ class AuthViewModel(private val authRepo: AuthRepo, private val userPrefs: UserP
             _authState.value = AuthState.Loading
             val result = authRepo.login(email, pass)
             result.onSuccess {
+                val uid = authRepo.getCurrentUserId()
+                if(uid!=null) {
+                    val userResult = authRepo.getUser(uid)
+                    userResult.onSuccess { user ->
+                        _currentUserProfile.value = user
+                        userPrefs.saveUserGoals(
+                            weight = user.weight,
+                            height = user.height,
+                            age = user.age,
+                            gender = user.gender
+                        )
+                    }
+                }
                 _authState.value = AuthState.Success
             }.onFailure {
-                _authState.value = AuthState.Error(it.message ?: "Unknown wrong happened")
+                _authState.value = AuthState.Error(it.message ?: "Unknown error happened")
             }
         }
     }
@@ -57,8 +70,12 @@ class AuthViewModel(private val authRepo: AuthRepo, private val userPrefs: UserP
                 authRepo.signUp(name, email, pass, ageInt, gender, heightDouble, weightDouble)
 
             result.onSuccess {
-                userPrefs.saveGoal(weightDouble.toInt())
-
+                userPrefs.saveUserGoals(
+                    weight = weightDouble,
+                    height = heightDouble,
+                    age = ageInt,
+                    gender = gender
+                )
                 _authState.value = AuthState.Success
             }.onFailure {
                 _authState.value = AuthState.Error(it.message ?: "failed")
@@ -103,7 +120,12 @@ class AuthViewModel(private val authRepo: AuthRepo, private val userPrefs: UserP
             )
             val result = authRepo.updateUser(updatedUser)
             result.onSuccess {
-                userPrefs.saveGoal(weightDouble.toInt())
+                userPrefs.saveUserGoals(
+                    weight = weightDouble,
+                    height = heightDouble,
+                    age = ageInt,
+                    gender = gender
+                )
 
                 _currentUserProfile.value = updatedUser
                 _authState.value = AuthState.Success
@@ -115,6 +137,7 @@ class AuthViewModel(private val authRepo: AuthRepo, private val userPrefs: UserP
 
     fun logout() {
         authRepo.logout()
+        _currentUserProfile.value = null
         _authState.value = AuthState.Idle
     }
 }

@@ -1,6 +1,6 @@
 package com.example.fitness_tracker.Repository
-import com.example.fitness_tracker.data.WaterDao
-import com.example.fitness_tracker.data.WaterEntity
+import com.example.fitness_tracker.data.water.WaterDao
+import com.example.fitness_tracker.data.water.WaterEntity
 import kotlinx.coroutines.flow.Flow
 
 class WaterRepo(private val waterDao: WaterDao) {
