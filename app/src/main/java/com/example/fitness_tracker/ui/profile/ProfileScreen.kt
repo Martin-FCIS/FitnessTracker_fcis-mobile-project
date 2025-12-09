@@ -1,5 +1,6 @@
 package com.example.fitness_tracker.ui.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -298,23 +300,45 @@ fun ProfileScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = String.format("%.1f", bmi),
-                                style = MaterialTheme.typography.headlineLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                text = "BMI: — —",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.Gray
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = bmiCategory,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                text = "To calculate your BMI, please open the BMI Calculator app.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.DarkGray
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            val context = LocalContext.current
+                            Button(
+                                onClick = {
+                                    val packageName = "com.example.bmi_calculator"
+                                    val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+
+                                    if (intent != null) {
+                                        context.startActivity(intent)
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "BMI Calculator app is not installed",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.Calculate, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Open BMI Calculator")
+                            }
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Logout Button
                 Button(
                     onClick = onLogout,
                     modifier = Modifier
