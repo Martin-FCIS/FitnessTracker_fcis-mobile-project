@@ -2,69 +2,90 @@ package com.example.fitness_tracker.viewmodel.food_viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fitness_tracker.Repository.AuthRepo
 import com.example.fitness_tracker.Repository.FoodRepo
 import com.example.fitness_tracker.data.UserPreferences
 import com.example.fitness_tracker.data.food.FoodEntity
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class FoodViewModel(
-    private val repo: FoodRepo,
-    private val userPrefs: UserPreferences,
-    private val userId: String
+    private val foodRepo: FoodRepo,
+    private val authRepo: AuthRepo,
+    private val userPrefs: UserPreferences
 ) : ViewModel() {
 
-    private val _todayFoods = MutableStateFlow<List<FoodEntity>>(emptyList())
-    val todayFoods: StateFlow<List<FoodEntity>> = _todayFoods
+    val dailyCalorieGoal: StateFlow<Int> = userPrefs.dailyCalorieGoal
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2000)
 
-    private val _todayCalories = MutableStateFlow(0)
-    val todayCalories: StateFlow<Int> = _todayCalories
+    private val currentUserId: String
+        get() = authRepo.getCurrentUserId() ?: ""
 
-    private val _todayProtein = MutableStateFlow(0.0)
-    val todayProtein: StateFlow<Double> = _todayProtein
+    private val startOfDay: Long
+        get() {
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+            return calendar.timeInMillis
+        }
 
-    private val _todayCarbs = MutableStateFlow(0.0)
-    val todayCarbs: StateFlow<Double> = _todayCarbs
+    val todayFoods: StateFlow<List<FoodEntity>> =
+        foodRepo.getTodayFoods(currentUserId, startOfDay)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _todayFats = MutableStateFlow(0.0)
-    val todayFats: StateFlow<Double> = _todayFats
+    val todayCalories: StateFlow<Int> =
+        foodRepo.getTodayCalories(currentUserId, startOfDay)
+            .map { it ?: 0 }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val dailyCalorieGoal = userPrefs.dailyCalorieGoal
-    fun get() = dailyCalorieGoal
-    fun loadTodayData(startOfDay: Long) {
-        repo.getTodayFoods(userId, startOfDay)
-            .onEach { _todayFoods.value = it }
-            .launchIn(viewModelScope)
+    val todayProtein: StateFlow<Double> =
+        foodRepo.getTodayProtein(currentUserId, startOfDay)
+            .map { it ?: 0.0 }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-        repo.getTodayCalories(userId, startOfDay)
-            .onEach { _todayCalories.value = it ?: 0 }
-            .launchIn(viewModelScope)
+    val todayCarbs: StateFlow<Double> =
+        foodRepo.getTodayCarbs(currentUserId, startOfDay)
+            .map { it ?: 0.0 }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-        repo.getTodayProtein(userId, startOfDay)
-            .onEach { _todayProtein.value = it ?: 0.0 }
-            .launchIn(viewModelScope)
+    val todayFats: StateFlow<Double> =
+        foodRepo.getTodayFats(currentUserId, startOfDay)
+            .map { it ?: 0.0 }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-        repo.getTodayCarbs(userId, startOfDay)
-            .onEach { _todayCarbs.value = it ?: 0.0 }
-            .launchIn(viewModelScope)
 
-        repo.getTodayFats(userId, startOfDay)
-            .onEach { _todayFats.value = it ?: 0.0 }
-            .launchIn(viewModelScope)
-    }
+    fun addFood(name: String, weight: Double, protein: Double, carbs: Double, fats: Double) {
+        if (currentUserId.isNotEmpty()) {
 
-    fun addFood(food: FoodEntity) {
-        viewModelScope.launch {
-            repo.insertFood(food)
+            val calculatedCalories = ((protein * 4) + (carbs * 4) + (fats * 9)).toInt()
+
+            val food = FoodEntity(
+                userId = currentUserId,
+                foodName = name,
+                weight = weight,
+                protein = protein,
+                carbs = carbs,
+                fats = fats,
+                totalCalories = calculatedCalories,
+                timestamp = System.currentTimeMillis()
+            )
+
+            viewModelScope.launch {
+                foodRepo.insertFood(food)
+            }
         }
     }
 
+
     fun deleteFood(food: FoodEntity) {
         viewModelScope.launch {
-            repo.deleteFood(food)
+            foodRepo.deleteFood(food)
         }
     }
 }
