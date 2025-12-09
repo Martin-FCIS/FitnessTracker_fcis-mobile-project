@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModel
 import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModel
 import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModel
+import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,8 +30,10 @@ fun HomeScreen(
     authViewModel: AuthViewModel,
     waterViewModel: WaterViewModel,
     foodViewModel: FoodViewModel,
+    walkViewModel: WalkViewModel,
     onNavigateToWater: () -> Unit,
     onNavigateToFood: () -> Unit,
+    onNavigateToWalk: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onLogout: () -> Unit
 ) {
@@ -39,6 +42,7 @@ fun HomeScreen(
     val waterGoal by waterViewModel.dailyWaterGoal.collectAsState()
     val todayCalories by foodViewModel.todayCalories.collectAsState()
     val calorieGoal by foodViewModel.dailyCalorieGoal.collectAsState()
+    val todaySteps by walkViewModel.todaySteps.collectAsState()
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -143,10 +147,10 @@ fun HomeScreen(
                     }
                     item {
                         QuickActionCard(
-                            icon = Icons.Default.FitnessCenter,
-                            title = "Workout",
+                            icon = Icons.Default.DirectionsWalk,
+                            title = "Walk",
                             color = Color(0xFF4CAF50),
-                            onClick = { /* Navigate to workout */ }
+                            onClick = onNavigateToWalk
                         )
                     }
                 }
@@ -189,6 +193,21 @@ fun HomeScreen(
                         onClick = onNavigateToFood
                     )
                 }
+            }
+
+            // Walk/Steps Summary
+            item {
+                val stepGoal = 10000
+                SummaryCard(
+                    icon = Icons.Default.DirectionsWalk,
+                    title = "Steps",
+                    value = "$todaySteps",
+                    goal = "$stepGoal",
+                    progress = if (stepGoal > 0) todaySteps.toFloat() / stepGoal.toFloat() else 0f,
+                    color = Color(0xFF4CAF50),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onNavigateToWalk
+                )
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
