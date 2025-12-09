@@ -1,4 +1,5 @@
 package com.example.fitness_tracker
+
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -24,9 +25,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthState
 import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModel
 import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModelFactory
-import com.example.fitness_tracker.database.AppDatabase
+import com.example.fitness_tracker.data.AppDatabase
 import com.example.fitness_tracker.Repository.AuthRepo
-import com.example.fitness_tracker.database.UserPreferences
+import com.example.fitness_tracker.data.UserPreferences
 import com.example.fitness_tracker.Repository.WaterRepo
 import com.example.fitness_tracker.ui.auth.LoginScreen
 import com.example.fitness_tracker.ui.auth.RegisterScreen
@@ -114,8 +115,16 @@ class MainActivity : ComponentActivity() {
                                 }
                             } else {
                                 RegisterScreen(
-                                    onRegisterClick = { email, pass ->
-                                        authViewModel.signUp(email, pass)
+                                    onRegisterClick = { name, email, pass, age, gender, height, weight ->
+                                        authViewModel.signUp(
+                                            name,
+                                            email,
+                                            pass,
+                                            age,
+                                            gender,
+                                            height,
+                                            weight
+                                        )
                                     },
                                     onNavigateToLogin = {
                                         navController.popBackStack()

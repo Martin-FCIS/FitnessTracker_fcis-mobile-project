@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.database
+package com.example.fitness_tracker.data
 
 import android.content.Context
 import androidx.room.Database

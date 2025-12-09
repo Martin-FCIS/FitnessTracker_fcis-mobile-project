@@ -3,9 +3,9 @@ package com.example.fitness_tracker.viewmodel.water_viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitness_tracker.Repository.AuthRepo
-import com.example.fitness_tracker.database.WaterEntity
+import com.example.fitness_tracker.data.WaterEntity
 import com.example.fitness_tracker.Repository.WaterRepo
-import com.example.fitness_tracker.database.UserPreferences
+import com.example.fitness_tracker.data.UserPreferences
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

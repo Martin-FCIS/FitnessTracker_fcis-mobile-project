@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.database
+package com.example.fitness_tracker.data
 
 import androidx.room.Dao
 import androidx.room.Delete
