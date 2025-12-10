@@ -24,7 +24,6 @@ class WaterViewModel(
     val dailyWaterGoal: StateFlow<Int> = userPrefs.dailyWaterGoal
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2000)
 
-    // FIXED: Get currentUserId dynamically, not cached
     private fun getCurrentUserId(): String = authRepo.getCurrentUserId() ?: ""
 
     private val startOfDay: Long
@@ -37,7 +36,6 @@ class WaterViewModel(
             return calendar.timeInMillis
         }
 
-    // FIXED: Use flatMapLatest to react to user changes
     val records: StateFlow<List<WaterEntity>> = flowOf(Unit)
         .flatMapLatest {
             val uid = getCurrentUserId()
