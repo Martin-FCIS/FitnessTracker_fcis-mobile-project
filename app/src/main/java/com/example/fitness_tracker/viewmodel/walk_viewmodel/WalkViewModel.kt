@@ -7,6 +7,8 @@ import com.example.fitness_tracker.Repository.WalkRepo
 import com.example.fitness_tracker.data.walk.WalkEntity
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -18,8 +20,7 @@ class WalkViewModel(
     private val authRepo: AuthRepo
 ) : ViewModel() {
 
-    private val currentUserId: String
-        get() = authRepo.getCurrentUserId() ?: ""
+    private fun getCurrentUserId(): String = authRepo.getCurrentUserId() ?: ""
 
     private val todayDate: String
         get() {
@@ -27,22 +28,41 @@ class WalkViewModel(
             return format.format(Date())
         }
 
-    val todaySteps: StateFlow<Int> =
-        walkRepo.getTodaySteps(currentUserId, todayDate)
-            .map { it ?: 0 }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    val todaySteps: StateFlow<Int> = flowOf(Unit)
+        .flatMapLatest {
+            val uid = getCurrentUserId()
+            if (uid.isNotEmpty()) {
+                walkRepo.getTodaySteps(uid, todayDate).map { it ?: 0 }
+            } else {
+                flowOf(0)
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val todayDistance: StateFlow<Double> =
-        walkRepo.getTodayDistance(currentUserId, todayDate)
-            .map { it ?: 0.0 }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    val todayDistance: StateFlow<Double> = flowOf(Unit)
+        .flatMapLatest {
+            val uid = getCurrentUserId()
+            if (uid.isNotEmpty()) {
+                walkRepo.getTodayDistance(uid, todayDate).map { it ?: 0.0 }
+            } else {
+                flowOf(0.0)
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    val todayCalories: StateFlow<Int> =
-        walkRepo.getTodayCalories(currentUserId, todayDate)
-            .map { it ?: 0 }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    val todayCalories: StateFlow<Int> = flowOf(Unit)
+        .flatMapLatest {
+            val uid = getCurrentUserId()
+            if (uid.isNotEmpty()) {
+                walkRepo.getTodayCalories(uid, todayDate).map { it ?: 0 }
+            } else {
+                flowOf(0)
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     fun addSteps(steps: Int) {
+        val currentUserId = getCurrentUserId()
         if (currentUserId.isEmpty()) return
 
         viewModelScope.launch {

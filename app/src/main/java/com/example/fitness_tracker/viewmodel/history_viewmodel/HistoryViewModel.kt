@@ -5,7 +5,6 @@ import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.fitness_tracker.Repository.AuthRepo
 import com.example.fitness_tracker.Repository.FoodRepo
@@ -18,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -31,42 +32,55 @@ class HistoryViewModel(
     private val walkRepo: WalkRepo,
     private val authRepo: AuthRepo
 ) : ViewModel() {
-    private val currentUserId: String
-        get() = authRepo.getCurrentUserId() ?: ""
-    val historyList: StateFlow<List<DailyHistory>> = combine(
-        waterRepo.getRecordsForUser(currentUserId),
-        foodRepo.getAllFoods(currentUserId),
-        walkRepo.getAllWalks(currentUserId)
-    ) { waterList, foodList, walkList ->
-        val waterMap = waterList.groupBy { formatDate(it.timestamp) }
-            .mapValues { entry -> entry.value.sumOf { it.amount } }
 
-        val foodMap = foodList.groupBy { formatDate(it.timestamp) }
-            .mapValues { entry -> entry.value.sumOf { it.totalCalories } }
+    private fun getCurrentUserId(): String = authRepo.getCurrentUserId() ?: ""
 
-        val walkMap = walkList.associateBy { it.date }
+    val historyList: StateFlow<List<DailyHistory>> = flowOf(Unit)
+        .flatMapLatest {
+            val uid = getCurrentUserId()
+            if (uid.isNotEmpty()) {
+                combine(
+                    waterRepo.getRecordsForUser(uid),
+                    foodRepo.getAllFoods(uid),
+                    walkRepo.getAllWalks(uid)
+                ) { waterList, foodList, walkList ->
+                    val waterMap = waterList.groupBy { formatDate(it.timestamp) }
+                        .mapValues { entry -> entry.value.sumOf { it.amount } }
 
-        val allDates = (waterMap.keys + foodMap.keys + walkMap.keys).toSortedSet(reverseOrder())
+                    val foodMap = foodList.groupBy { formatDate(it.timestamp) }
+                        .mapValues { entry -> entry.value.sumOf { it.totalCalories } }
 
-        allDates.map { date ->
-            DailyHistory(
-                date = date,
-                totalWater = waterMap[date] ?: 0,
-                totalCaloriesConsumed = foodMap[date] ?: 0,
-                totalSteps = walkMap[date]?.steps ?: 0,
-                totalCaloriesBurned = walkMap[date]?.caloriesBurned ?: 0
-            )
+                    val walkMap = walkList.associateBy { it.date }
+
+                    val allDates = (waterMap.keys + foodMap.keys + walkMap.keys).toSortedSet(reverseOrder())
+
+                    allDates.map { date ->
+                        DailyHistory(
+                            date = date,
+                            totalWater = waterMap[date] ?: 0,
+                            totalCaloriesConsumed = foodMap[date] ?: 0,
+                            totalSteps = walkMap[date]?.steps ?: 0,
+                            totalCaloriesBurned = walkMap[date]?.caloriesBurned ?: 0
+                        )
+                    }
+                }
+            } else {
+                flowOf(emptyList())
+            }
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private val _selectedDayLogs = MutableStateFlow<List<HistoryLog>>(emptyList())
     val selectedDayLogs: StateFlow<List<HistoryLog>> = _selectedDayLogs
+
     private val _selectedDaySummary = MutableStateFlow<DailyHistory?>(null)
     val selectedDaySummary: StateFlow<DailyHistory?> = _selectedDaySummary
+
     fun loadDayDetails(dateString: String) {
+        val currentUserId = getCurrentUserId()
         if (currentUserId.isEmpty()) return
 
         viewModelScope.launch {
-
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val date = dateFormat.parse(dateString) ?: Date()
 
@@ -130,7 +144,6 @@ class HistoryViewModel(
                 }
 
                 logs.sortedByDescending { it.time }
-
             }.collect {
                 _selectedDayLogs.value = it
             }
