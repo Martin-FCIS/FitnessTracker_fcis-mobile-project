@@ -28,6 +28,7 @@ import com.example.fitness_tracker.Repository.WaterRepo
 import com.example.fitness_tracker.ui.auth.LoginScreen
 import com.example.fitness_tracker.ui.auth.RegisterScreen
 import com.example.fitness_tracker.ui.food.FoodScreen
+import com.example.fitness_tracker.ui.history.HistoryScreen
 import com.example.fitness_tracker.ui.home.HomeScreen
 import com.example.fitness_tracker.ui.profile.ProfileScreen
 import com.example.fitness_tracker.ui.walk.WalkScreen
@@ -35,6 +36,8 @@ import com.example.fitness_tracker.ui.theme.Fitness_TrackerTheme
 import com.example.fitness_tracker.ui.water.WaterScreen
 import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModel
 import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModelFactory
+import com.example.fitness_tracker.viewmodel.history_viewmodel.HistoryViewModel
+import com.example.fitness_tracker.viewmodel.history_viewmodel.HistoryViewModelFactory
 import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModel
 import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModelFactory
 import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModel
@@ -61,6 +64,7 @@ class MainActivity : ComponentActivity() {
         val waterFactory = WaterViewModelFactory(waterRepo, authRepo, userPreferences)
         val foodFactory = FoodViewModelFactory(foodRepo, authRepo, userPreferences)
         val walkFactory = WalkViewModelFactory(walkRepo, authRepo)
+        val historyFactory = HistoryViewModelFactory(waterRepo, foodRepo, walkRepo, authRepo)
 
         setContent {
             Fitness_TrackerTheme {
@@ -75,6 +79,7 @@ class MainActivity : ComponentActivity() {
                     val waterViewModel: WaterViewModel = viewModel(factory = waterFactory)
                     val foodViewModel: FoodViewModel = viewModel(factory = foodFactory)
                     val walkViewModel: WalkViewModel = viewModel(factory = walkFactory)
+                    val historyViewModel: HistoryViewModel = viewModel(factory = historyFactory)
 
                     val authState by authViewModel.authState.collectAsState()
 
@@ -173,6 +178,9 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToProfile = {
                                     navController.navigate("profile")
                                 },
+                                onNavigateToHistory = {
+                                    navController.navigate("history")
+                                },
                                 onLogout = {
                                     authViewModel.logout()
                                     navController.navigate("login") {
@@ -206,6 +214,16 @@ class MainActivity : ComponentActivity() {
                         composable("walk") {
                             WalkScreen(
                                 walkViewModel = walkViewModel,
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        // History Screen
+                        composable("history") {
+                            HistoryScreen(
+                                historyViewModel = historyViewModel,
                                 onNavigateBack = {
                                     navController.popBackStack()
                                 }

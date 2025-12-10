@@ -35,6 +35,7 @@ fun HomeScreen(
     onNavigateToFood: () -> Unit,
     onNavigateToWalk: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     onLogout: () -> Unit
 ) {
     val currentUser by authViewModel.currentUserProfile.collectAsState()
@@ -84,6 +85,16 @@ fun HomeScreen(
                             },
                             leadingIcon = {
                                 Icon(Icons.Default.Person, contentDescription = null)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("History") },
+                            onClick = {
+                                showMenu = false
+                                onNavigateToHistory()
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.History, contentDescription = null)
                             }
                         )
                         Divider()
