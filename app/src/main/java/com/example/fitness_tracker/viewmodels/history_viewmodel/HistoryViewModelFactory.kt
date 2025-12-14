@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.viewmodel.history_viewmodel
+package com.example.fitness_tracker.viewmodels.history_viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

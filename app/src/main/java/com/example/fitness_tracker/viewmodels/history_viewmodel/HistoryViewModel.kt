@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.viewmodel.history_viewmodel
+package com.example.fitness_tracker.viewmodels.history_viewmodel
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsWalk
@@ -30,7 +30,8 @@ class HistoryViewModel(
     private val waterRepo: WaterRepo,
     private val foodRepo: FoodRepo,
     private val walkRepo: WalkRepo,
-    private val authRepo: AuthRepo
+    private val authRepo: AuthRepo,
+    private val sharingStarted: SharingStarted = SharingStarted.WhileSubscribed(5000)
 ) : ViewModel() {
 
     private fun getCurrentUserId(): String = authRepo.getCurrentUserId() ?: ""
@@ -50,8 +51,15 @@ class HistoryViewModel(
                     val foodMap = foodList.groupBy { formatDate(it.timestamp) }
                         .mapValues { entry -> entry.value.sumOf { it.totalCalories } }
 
-                    val walkMap = walkList.associateBy { it.date }
-
+                    val walkMap = walkList
+                        .groupBy { it.date }
+                        .mapValues { entry ->
+                            Triple(
+                                entry.value.sumOf { it.steps },
+                                entry.value.sumOf { it.distance },
+                                entry.value.sumOf { it.caloriesBurned }
+                            )
+                        }
                     val allDates = (waterMap.keys + foodMap.keys + walkMap.keys).toSortedSet(reverseOrder())
 
                     allDates.map { date ->
@@ -59,8 +67,8 @@ class HistoryViewModel(
                             date = date,
                             totalWater = waterMap[date] ?: 0,
                             totalCaloriesConsumed = foodMap[date] ?: 0,
-                            totalSteps = walkMap[date]?.steps ?: 0,
-                            totalCaloriesBurned = walkMap[date]?.caloriesBurned ?: 0
+                            totalSteps = walkMap[date]?.first ?: 0,
+                            totalCaloriesBurned = walkMap[date]?.third ?: 0
                         )
                     }
                 }
@@ -68,7 +76,7 @@ class HistoryViewModel(
                 flowOf(emptyList())
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, sharingStarted, emptyList())
 
     private val _selectedDayLogs = MutableStateFlow<List<HistoryLog>>(emptyList())
     val selectedDayLogs: StateFlow<List<HistoryLog>> = _selectedDayLogs
@@ -98,14 +106,16 @@ class HistoryViewModel(
             combine(
                 waterRepo.getWaterForDay(currentUserId, startOfDay, endOfDay),
                 foodRepo.getFoodsForDay(currentUserId, startOfDay, endOfDay),
-                walkRepo.getWalkForDay(currentUserId, dateString)
-            ) { waterList, foodList, walkRecord ->
+                walkRepo.getTodaySteps(currentUserId, dateString),
+                walkRepo.getTodayCalories(currentUserId, dateString),
+                walkRepo.getTodayDistance(currentUserId,dateString)
+            ) { waterList, foodList, totalSteps, totalCaloriesBurned,totalDistance->
                 _selectedDaySummary.value = DailyHistory(
                     date = dateString,
                     totalWater = waterList.sumOf { it.amount },
                     totalCaloriesConsumed = foodList.sumOf { it.totalCalories },
-                    totalSteps = walkRecord?.steps ?: 0,
-                    totalCaloriesBurned = walkRecord?.caloriesBurned ?: 0
+                    totalSteps = totalSteps ?: 0,
+                    totalCaloriesBurned = totalCaloriesBurned ?: 0
                 )
 
                 val logs = mutableListOf<HistoryLog>()
@@ -132,18 +142,18 @@ class HistoryViewModel(
                     ))
                 }
 
-                if (walkRecord != null && walkRecord.steps > 0) {
+                if (totalSteps != null && totalSteps > 0) {
                     logs.add(HistoryLog(
-                        time = "00:00",
+                        time = "All Day",
                         title = "Walking",
-                        subtitle = "${walkRecord.distance} KM",
-                        value = "${walkRecord.steps} steps",
+                        subtitle = "$totalDistance KM",
+                        value = "$totalSteps steps",
                         icon = Icons.Default.DirectionsWalk,
                         type = LogType.WALK
                     ))
                 }
 
-                logs.sortedByDescending { it.time }
+                logs.sortedByDescending { if (it.time == "All Day") "00:00" else it.time }
             }.collect {
                 _selectedDayLogs.value = it
             }
