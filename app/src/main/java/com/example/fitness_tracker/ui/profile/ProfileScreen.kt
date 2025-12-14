@@ -19,8 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthState
-import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModel
+import com.example.fitness_tracker.viewmodels.auth_viewmodel.AuthState
+import com.example.fitness_tracker.viewmodels.auth_viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +84,6 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Profile Avatar
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -117,7 +116,6 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             if (isEditing) {
-                // Edit Mode
                 Card(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -232,7 +230,6 @@ fun ProfileScreen(
                     }
                 }
             } else {
-                // View Mode
                 Card(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -274,7 +271,6 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // BMI Card
                 currentUser?.let { user ->
                     val bmi = user.weight / ((user.height / 100) * (user.height / 100))
                     val bmiCategory = when {

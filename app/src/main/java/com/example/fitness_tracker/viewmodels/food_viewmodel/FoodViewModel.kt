@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.viewmodel.food_viewmodel
+package com.example.fitness_tracker.viewmodels.food_viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,11 +18,12 @@ import java.util.Calendar
 class FoodViewModel(
     private val foodRepo: FoodRepo,
     private val authRepo: AuthRepo,
-    private val userPrefs: UserPreferences
+    private val userPrefs: UserPreferences,
+    private val sharingStarted: SharingStarted = SharingStarted.WhileSubscribed(5000)
 ) : ViewModel() {
 
     val dailyCalorieGoal: StateFlow<Int> = userPrefs.dailyCalorieGoal
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2000)
+        .stateIn(viewModelScope, sharingStarted, 2000)
 
     private fun getCurrentUserId(): String = authRepo.getCurrentUserId() ?: ""
 
@@ -45,7 +46,7 @@ class FoodViewModel(
                 flowOf(emptyList())
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, sharingStarted, emptyList())
 
     val todayCalories: StateFlow<Int> = flowOf(Unit)
         .flatMapLatest {
@@ -56,7 +57,7 @@ class FoodViewModel(
                 flowOf(0)
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+        .stateIn(viewModelScope, sharingStarted, 0)
 
     val todayProtein: StateFlow<Double> = flowOf(Unit)
         .flatMapLatest {
@@ -67,7 +68,7 @@ class FoodViewModel(
                 flowOf(0.0)
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+        .stateIn(viewModelScope, sharingStarted, 0.0)
 
     val todayCarbs: StateFlow<Double> = flowOf(Unit)
         .flatMapLatest {
@@ -78,7 +79,7 @@ class FoodViewModel(
                 flowOf(0.0)
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+        .stateIn(viewModelScope, sharingStarted, 0.0)
 
     val todayFats: StateFlow<Double> = flowOf(Unit)
         .flatMapLatest {
@@ -89,7 +90,7 @@ class FoodViewModel(
                 flowOf(0.0)
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+        .stateIn(viewModelScope, sharingStarted, 0.0)
 
     fun addFood(name: String, weight: Double, protein: Double, carbs: Double, fats: Double) {
         val currentUserId = getCurrentUserId()

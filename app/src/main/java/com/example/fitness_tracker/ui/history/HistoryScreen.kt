@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -19,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.fitness_tracker.data.history.DailyHistory
 import com.example.fitness_tracker.data.history.HistoryLog
 import com.example.fitness_tracker.data.history.LogType
-import com.example.fitness_tracker.viewmodel.history_viewmodel.HistoryViewModel
+import com.example.fitness_tracker.viewmodels.history_viewmodel.HistoryViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 

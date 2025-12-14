@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.fitness_tracker.data.food.FoodEntity
-import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModel
+import com.example.fitness_tracker.viewmodels.food_viewmodel.FoodViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -73,7 +73,6 @@ fun FoodScreen(
         ) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            // Calories Progress Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -152,7 +151,6 @@ fun FoodScreen(
                 }
             }
 
-            // Macros Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -190,7 +188,6 @@ fun FoodScreen(
                 }
             }
 
-            // Today's Foods
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -7,10 +7,8 @@ import androidx.room.PrimaryKey
 data class WalkEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-
     val userId: String,
     val date: String,
-
     val steps: Int,
     val distance: Double,
     val caloriesBurned: Int,

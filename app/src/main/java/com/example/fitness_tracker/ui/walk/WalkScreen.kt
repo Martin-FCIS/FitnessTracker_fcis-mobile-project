@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModel
+import com.example.fitness_tracker.viewmodels.walk_viewmodel.WalkViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +31,6 @@ fun WalkScreen(
 
     var showAddDialog by remember { mutableStateOf(false) }
 
-    // Default daily step goal (can be made configurable)
     val stepGoal = 10000
     val progress = (todaySteps.toFloat() / stepGoal.toFloat()).coerceIn(0f, 1f)
 
@@ -68,7 +67,6 @@ fun WalkScreen(
         ) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            // Steps Progress Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -147,7 +145,6 @@ fun WalkScreen(
                 }
             }
 
-            // Statistics Cards
             item {
                 Text(
                     text = "Today's Activity",
@@ -179,7 +176,6 @@ fun WalkScreen(
                 }
             }
 
-            // Benefits Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -204,7 +200,6 @@ fun WalkScreen(
                 }
             }
 
-            // Tips Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),

@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.viewmodel.water_viewmodel
+package com.example.fitness_tracker.viewmodels.water_viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.fitness_tracker.Repository.AuthRepo

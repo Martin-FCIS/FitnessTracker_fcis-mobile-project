@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.viewmodel.walk_viewmodel
+package com.example.fitness_tracker.viewmodels.walk_viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

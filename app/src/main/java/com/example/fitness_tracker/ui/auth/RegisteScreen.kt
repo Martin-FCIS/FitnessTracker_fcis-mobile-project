@@ -66,7 +66,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Personal Information Section
         Text(
             text = "Personal Information",
             style = MaterialTheme.typography.titleMedium,
@@ -138,7 +137,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Gender Selection
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -188,7 +186,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Account Information Section
         Text(
             text = "Account Information",
             style = MaterialTheme.typography.titleMedium,

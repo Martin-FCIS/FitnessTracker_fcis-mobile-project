@@ -1,4 +1,4 @@
-package com.example.fitness_tracker.viewmodel.walk_viewmodel
+package com.example.fitness_tracker.viewmodels.walk_viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +17,8 @@ import java.util.*
 
 class WalkViewModel(
     private val walkRepo: WalkRepo,
-    private val authRepo: AuthRepo
+    private val authRepo: AuthRepo,
+    private val sharingStarted: SharingStarted = SharingStarted.WhileSubscribed(5000)
 ) : ViewModel() {
 
     private fun getCurrentUserId(): String = authRepo.getCurrentUserId() ?: ""
@@ -37,7 +38,7 @@ class WalkViewModel(
                 flowOf(0)
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+        .stateIn(viewModelScope, sharingStarted, 0)
 
     val todayDistance: StateFlow<Double> = flowOf(Unit)
         .flatMapLatest {
@@ -48,7 +49,7 @@ class WalkViewModel(
                 flowOf(0.0)
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+        .stateIn(viewModelScope, sharingStarted, 0.0)
 
     val todayCalories: StateFlow<Int> = flowOf(Unit)
         .flatMapLatest {
@@ -59,7 +60,7 @@ class WalkViewModel(
                 flowOf(0)
             }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+        .stateIn(viewModelScope, sharingStarted, 0)
 
     fun addSteps(steps: Int) {
         val currentUserId = getCurrentUserId()

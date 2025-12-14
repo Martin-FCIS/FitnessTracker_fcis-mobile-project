@@ -17,10 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModel
-import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModel
-import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModel
-import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModel
+import com.example.fitness_tracker.viewmodels.auth_viewmodel.AuthViewModel
+import com.example.fitness_tracker.viewmodels.water_viewmodel.WaterViewModel
+import com.example.fitness_tracker.viewmodels.food_viewmodel.FoodViewModel
+import com.example.fitness_tracker.viewmodels.walk_viewmodel.WalkViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -122,12 +122,10 @@ fun HomeScreen(
         ) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            // User Stats Overview
             item {
                 UserStatsCard(currentUser)
             }
 
-            // Quick Actions
             item {
                 Text(
                     text = "Quick Actions",
@@ -167,7 +165,6 @@ fun HomeScreen(
                 }
             }
 
-            // Today's Summary
             item {
                 Text(
                     text = "Today's Summary",
@@ -176,7 +173,6 @@ fun HomeScreen(
                 )
             }
 
-            // Water & Food Summary
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -206,7 +202,6 @@ fun HomeScreen(
                 }
             }
 
-            // Walk/Steps Summary
             item {
                 val stepGoal = 10000
                 SummaryCard(

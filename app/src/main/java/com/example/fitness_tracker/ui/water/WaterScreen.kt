@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fitness_tracker.data.water.WaterEntity
-import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModel
+import com.example.fitness_tracker.viewmodels.water_viewmodel.WaterViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,7 +69,6 @@ fun WaterScreen(
         ) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            // Water Goal Progress Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -81,7 +80,6 @@ fun WaterScreen(
                         modifier = Modifier.padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Water Drop Icon
                         Box(
                             modifier = Modifier
                                 .size(120.dp)
@@ -149,7 +147,6 @@ fun WaterScreen(
                 }
             }
 
-            // Quick Add Buttons
             item {
                 Text(
                     text = "Quick Add",
@@ -181,7 +178,6 @@ fun WaterScreen(
                 }
             }
 
-            // Today's Records
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -228,7 +224,6 @@ fun WaterScreen(
         }
     }
 
-    // Add Water Dialog
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },

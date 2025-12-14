@@ -16,9 +16,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthState
-import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModel
-import com.example.fitness_tracker.viewmodel.auth_viewmodel.AuthViewModelFactory
+import com.example.fitness_tracker.viewmodels.auth_viewmodel.AuthState
+import com.example.fitness_tracker.viewmodels.auth_viewmodel.AuthViewModel
+import com.example.fitness_tracker.viewmodels.auth_viewmodel.AuthViewModelFactory
 import com.example.fitness_tracker.data.AppDatabase
 import com.example.fitness_tracker.Repository.AuthRepo
 import com.example.fitness_tracker.Repository.FoodRepo
@@ -34,24 +34,22 @@ import com.example.fitness_tracker.ui.profile.ProfileScreen
 import com.example.fitness_tracker.ui.walk.WalkScreen
 import com.example.fitness_tracker.ui.theme.Fitness_TrackerTheme
 import com.example.fitness_tracker.ui.water.WaterScreen
-import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModel
-import com.example.fitness_tracker.viewmodel.food_viewmodel.FoodViewModelFactory
-import com.example.fitness_tracker.viewmodel.history_viewmodel.HistoryViewModel
-import com.example.fitness_tracker.viewmodel.history_viewmodel.HistoryViewModelFactory
-import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModel
-import com.example.fitness_tracker.viewmodel.walk_viewmodel.WalkViewModelFactory
-import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModel
-import com.example.fitness_tracker.viewmodel.water_viewmodel.WaterViewModelFactory
+import com.example.fitness_tracker.viewmodels.food_viewmodel.FoodViewModel
+import com.example.fitness_tracker.viewmodels.food_viewmodel.FoodViewModelFactory
+import com.example.fitness_tracker.viewmodels.history_viewmodel.HistoryViewModel
+import com.example.fitness_tracker.viewmodels.history_viewmodel.HistoryViewModelFactory
+import com.example.fitness_tracker.viewmodels.walk_viewmodel.WalkViewModel
+import com.example.fitness_tracker.viewmodels.walk_viewmodel.WalkViewModelFactory
+import com.example.fitness_tracker.viewmodels.water_viewmodel.WaterViewModel
+import com.example.fitness_tracker.viewmodels.water_viewmodel.WaterViewModelFactory
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase
         FirebaseApp.initializeApp(this)
 
-        // Setup Database and Repositories
         val database = AppDatabase.getInstance(applicationContext)
         val authRepo = AuthRepo()
         val waterRepo = WaterRepo(database.waterDao())
@@ -59,7 +57,6 @@ class MainActivity : ComponentActivity() {
         val walkRepo = WalkRepo(database.walkDao())
         val userPreferences = UserPreferences(applicationContext)
 
-        // Setup ViewModels Factories
         val authFactory = AuthViewModelFactory(authRepo, userPreferences)
         val waterFactory = WaterViewModelFactory(waterRepo, authRepo, userPreferences)
         val foodFactory = FoodViewModelFactory(foodRepo, authRepo, userPreferences)
@@ -74,7 +71,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-                    // ViewModels
                     val authViewModel: AuthViewModel = viewModel(factory = authFactory)
                     val waterViewModel: WaterViewModel = viewModel(factory = waterFactory)
                     val foodViewModel: FoodViewModel = viewModel(factory = foodFactory)
@@ -92,7 +88,6 @@ class MainActivity : ComponentActivity() {
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                // Navigate to home only if not already there
                                 if (navController.currentDestination?.route != "home") {
                                     navController.navigate("home") {
                                         popUpTo("login") { inclusive = true }
@@ -116,7 +111,6 @@ class MainActivity : ComponentActivity() {
                     val startDestination = if (authRepo.getCurrentUserId() != null) "home" else "login"
                     NavHost(navController = navController, startDestination = startDestination) {
 
-                        // Auth Screens
                         composable("login") {
                             if (authState is AuthState.Loading) {
                                 Box(
@@ -159,7 +153,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        // Home Screen
                         composable("home") {
                             HomeScreen(
                                 authViewModel = authViewModel,
@@ -190,7 +183,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Water Screen
                         composable("water") {
                             WaterScreen(
                                 waterViewModel = waterViewModel,
@@ -200,7 +192,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Food Screen
                         composable("food") {
                             FoodScreen(
                                 foodViewModel = foodViewModel,
@@ -210,7 +201,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Walk Screen
                         composable("walk") {
                             WalkScreen(
                                 walkViewModel = walkViewModel,
@@ -220,7 +210,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // History Screen
                         composable("history") {
                             HistoryScreen(
                                 historyViewModel = historyViewModel,
@@ -230,7 +219,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Profile Screen
                         composable("profile") {
                             ProfileScreen(
                                 authViewModel = authViewModel,
